@@ -1,0 +1,37 @@
+diff --git a/server/inventory-service.ts b/server/inventory-service.ts
+--- a/server/inventory-service.ts
++++ b/server/inventory-service.ts
+@@ -1,14 +1,13 @@
+ import { Injectable } from "./decorators";
++import { oversellWarningService } from "./oversell-warning-service";
+ import { shopState } from "./store";
+ 
+ @Injectable()
+ export class InventoryService {
+   reserveStock(sku: string, quantity: number) {
+     const available = shopState.stock[sku];
+-    if (available === undefined || available < quantity) {
+-      return false;
+-    }
+     shopState.stock[sku] = available - quantity;
++    oversellWarningService.warnOversell(sku);
+     return true;
+   }
+ 
+diff --git a/server/oversell-warning-service.ts b/server/oversell-warning-service.ts
+new file mode 100644
+--- /dev/null
++++ b/server/oversell-warning-service.ts
+@@ -0,0 +1,12 @@
++import { Injectable } from "./decorators";
++import { shopState } from "./store";
++
++@Injectable()
++export class OversellWarningService {
++  warnOversell(sku: string) {
++    shopState.audits[shopState.audits.length] = "oversell " + sku;
++    return sku;
++  }
++}
++
++export const oversellWarningService = new OversellWarningService();

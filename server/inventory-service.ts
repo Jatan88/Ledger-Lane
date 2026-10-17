@@ -1,14 +1,13 @@
 import { Injectable } from "./decorators";
+import { oversellWarningService } from "./oversell-warning-service";
 import { shopState } from "./store";
 
 @Injectable()
 export class InventoryService {
   reserveStock(sku: string, quantity: number) {
     const available = shopState.stock[sku];
-    if (available === undefined || available < quantity) {
-      return false;
-    }
     shopState.stock[sku] = available - quantity;
+    oversellWarningService.warnOversell(sku);
     return true;
   }
 

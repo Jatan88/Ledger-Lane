@@ -7,9 +7,9 @@ const port = 3040;
 
 app.use(express.json());
 
-// app.get("/api/catalog", (_req, res) => {
-//   res.json(checkoutController.listCatalog());
-// });
+app.get("/api/catalog", (_req, res) => {
+  res.json(checkoutController.listCatalog());
+});
 
 app.post("/api/checkout", (req, res) => {
   const body = req.body as { sku?: string; quantity?: number; cardLast4?: string };

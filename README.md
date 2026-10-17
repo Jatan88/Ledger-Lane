@@ -50,14 +50,14 @@ Synthetic payment incidents attach to `retryPayment`, `recordLedgerEntry`, `send
 1. In ChangeGraph, create a project and link the public repository URL for this folder.
 2. Select the default branch and ingest it.
 3. Seed the synthetic payment incidents.
-4. From this directory, apply the risky edit and commit it:
+4. From this directory, apply the risky edit and commit the TypeScript files it changes. Committing only the patch file does not change a function, so the review does not open a pull request.
 
 ```bash
-patch -p1 < walkthrough/drop-idempotency.patch
+patch -p1 < walkthrough/oversell-stock.patch
 ```
 
-That removes the idempotency guard inside `retryPayment` and adds `warnDuplicateLedger` on a new `RetryWarningService`. The next retry writes another ledger line and records an unguarded-retry warning. The guard sits in the body of `retryPayment`, so the commit diff does not also mark `capturePayment` changed. No test calls `retryPayment` or `warnDuplicateLedger`.
+That removes the stock guard inside `reserveStock` and adds `warnOversell` on a new `OversellWarningService`. Checkout then takes payment for an order even when the shelf does not have enough stock. `releaseStock` is outside the diff. No test calls `reserveStock` or `warnOversell`.
 
-5. Commit and push that edit on the selected branch.
+5. Commit and push that edit on the selected branch. Include `server/inventory-service.ts` and `server/oversell-warning-service.ts`.
 
-ChangeGraph detects the push and reviews the graph. The report should show `retryPayment` as modified and `warnDuplicateLedger` as added. `retryFailedPayment` calls `retryPayment`. Downstream of the retry are `recordLedgerEntry`, `warnDuplicateLedger`, `sendNotification`, and `auditPaymentRetry`, on other annotated services. Neither changed function has a direct test. Those findings are actionable. The Developer Agent opens a `changegraph/fix-*` pull request that puts the guard back and adds a test calling the changed function. The pull request is for a person to review. It is not merged, and it is not pushed to the default branch.
+ChangeGraph detects the push and reviews the graph. The report should show `reserveStock` as modified and `warnOversell` as added. `submitCheckout` calls `reserveStock`, and `acceptCheckout` calls `submitCheckout`. The new warning is downstream. Those functions sit on different annotated services. Neither changed function has a direct test. Those findings are actionable. The Developer Agent opens a `changegraph/fix-*` pull request that puts the stock guard back and adds a test calling the changed function. The pull request is for a person to review. It is not merged, and it is not pushed to the default branch.

@@ -1,15 +1,41 @@
 diff --git a/server/payment-service.ts b/server/payment-service.ts
 --- a/server/payment-service.ts
 +++ b/server/payment-service.ts
-@@ -23,11 +23,7 @@ export class PaymentService {
-     return payment;
-   }
+@@ -2,6 +2,7 @@
+ import { Injectable } from "./decorators";
+ import { ledgerService } from "./ledger-service";
+ import { notificationService } from "./notification-service";
++import { retryWarningService } from "./retry-warning-service";
+ import { shopState } from "./store";
+ import type { Payment } from "./types";
  
-   retryPayment(paymentId: string) {
+@@ -31,11 +32,8 @@
+       kind: "retry",
+       amountCents: payment.amountCents,
+     };
 -    const priorRetry = shopState.retries[paymentId];
 -    if (priorRetry) {
 -      return priorRetry;
 -    }
-     const payment = shopState.payments[paymentId];
-     const entry = {
-       id: "led-retry-" + paymentId,
+     ledgerService.recordLedgerEntry(entry);
++    retryWarningService.warnDuplicateLedger(paymentId);
+     notificationService.sendNotification("Retry captured payment " + paymentId);
+     auditService.auditPaymentRetry(paymentId);
+     payment.status = "captured";
+diff --git a/server/retry-warning-service.ts b/server/retry-warning-service.ts
+new file mode 100644
+--- /dev/null
++++ b/server/retry-warning-service.ts
+@@ -0,0 +1,12 @@
++import { Injectable } from "./decorators";
++import { shopState } from "./store";
++
++@Injectable()
++export class RetryWarningService {
++  warnDuplicateLedger(paymentId: string) {
++    shopState.audits[shopState.audits.length] = "unguarded " + paymentId;
++    return paymentId;
++  }
++}
++
++export const retryWarningService = new RetryWarningService();

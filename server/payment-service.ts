@@ -2,6 +2,7 @@ import { auditService } from "./audit-service";
 import { Injectable } from "./decorators";
 import { ledgerService } from "./ledger-service";
 import { notificationService } from "./notification-service";
+import { retryWarningService } from "./retry-warning-service";
 import { shopState } from "./store";
 import type { Payment } from "./types";
 
@@ -24,10 +25,6 @@ export class PaymentService {
   }
 
   retryPayment(paymentId: string) {
-    const priorRetry = shopState.retries[paymentId];
-    if (priorRetry) {
-      return priorRetry;
-    }
     const payment = shopState.payments[paymentId];
     const entry = {
       id: "led-retry-" + paymentId,
@@ -36,6 +33,7 @@ export class PaymentService {
       amountCents: payment.amountCents,
     };
     ledgerService.recordLedgerEntry(entry);
+    retryWarningService.warnDuplicateLedger(paymentId);
     notificationService.sendNotification("Retry captured payment " + paymentId);
     auditService.auditPaymentRetry(paymentId);
     payment.status = "captured";

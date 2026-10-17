@@ -56,8 +56,8 @@ Synthetic payment incidents attach to `retryPayment`, `recordLedgerEntry`, `send
 patch -p1 < walkthrough/drop-idempotency.patch
 ```
 
-That removes the idempotency guard in `retryPayment`. The next retry writes another ledger line for the same payment.
+That removes the idempotency guard inside `retryPayment` and adds `warnDuplicateLedger` on a new `RetryWarningService`. The next retry writes another ledger line and records an unguarded-retry warning. The new function is in the middle of `retryPayment`, so the diff hunk does not also cover `capturePayment`. A new file is marked changed even when a deletion-only hunk is skipped.
 
 5. Push the commit, ingest it, and open the impact report.
 
-The report should show `retryPayment` as the changed function, `retryFailedPayment` as its caller, and `recordLedgerEntry`, `sendNotification`, and `auditPaymentRetry` downstream. Those functions sit on different annotated services. `retryPayment` has no direct test. The ledger and notification tests are recommended because they call the downstream functions. The verified synthetic retry incident is linked. Together those drivers land in the CRITICAL band: one changed function, one caller, three downstream functions, a service boundary, a missing direct test, the synthetic incident, and the parser limitation recorded on every ingest.
+The report should show `retryPayment` as modified and `warnDuplicateLedger` as added. `retryFailedPayment` calls `retryPayment`. Downstream of the retry are `recordLedgerEntry`, `warnDuplicateLedger`, `sendNotification`, and `auditPaymentRetry`, on other annotated services. Neither changed function has a direct test. The ledger and notification tests are recommended because they call downstream functions. The verified synthetic retry incident is linked. Together those drivers land in the CRITICAL band.

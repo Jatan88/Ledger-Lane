@@ -56,8 +56,8 @@ Synthetic payment incidents attach to `retryPayment`, `recordLedgerEntry`, `send
 patch -p1 < walkthrough/drop-idempotency.patch
 ```
 
-That removes the idempotency guard inside `retryPayment` and adds `warnDuplicateLedger` on a new `RetryWarningService`. The next retry writes another ledger line and records an unguarded-retry warning. The new function is in the middle of `retryPayment`, so the diff hunk does not also cover `capturePayment`. A new file is marked changed even when a deletion-only hunk is skipped.
+That removes the idempotency guard inside `retryPayment` and adds `warnDuplicateLedger` on a new `RetryWarningService`. The next retry writes another ledger line and records an unguarded-retry warning. The guard sits in the body of `retryPayment`, so the commit diff does not also mark `capturePayment` changed. No test calls `retryPayment` or `warnDuplicateLedger`.
 
-5. Push the commit, ingest it, and open the impact report.
+5. Commit and push that edit on the selected branch.
 
-The report should show `retryPayment` as modified and `warnDuplicateLedger` as added. `retryFailedPayment` calls `retryPayment`. Downstream of the retry are `recordLedgerEntry`, `warnDuplicateLedger`, `sendNotification`, and `auditPaymentRetry`, on other annotated services. Neither changed function has a direct test. The ledger and notification tests are recommended because they call downstream functions. The verified synthetic retry incident is linked. Together those drivers land in the CRITICAL band.
+ChangeGraph detects the push and reviews the graph. The report should show `retryPayment` as modified and `warnDuplicateLedger` as added. `retryFailedPayment` calls `retryPayment`. Downstream of the retry are `recordLedgerEntry`, `warnDuplicateLedger`, `sendNotification`, and `auditPaymentRetry`, on other annotated services. Neither changed function has a direct test. Those findings are actionable. The Developer Agent opens a `changegraph/fix-*` pull request that puts the guard back and adds a test calling the changed function. The pull request is for a person to review. It is not merged, and it is not pushed to the default branch.

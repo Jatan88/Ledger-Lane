@@ -9,8 +9,7 @@ diff --git a/server/payment-service.ts b/server/payment-service.ts
  import { shopState } from "./store";
  import type { Payment } from "./types";
  
-@@ -31,11 +32,8 @@
-       kind: "retry",
+@@ -32,10 +33,7 @@
        amountCents: payment.amountCents,
      };
 -    const priorRetry = shopState.retries[paymentId];

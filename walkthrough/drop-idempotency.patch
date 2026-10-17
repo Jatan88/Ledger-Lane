@@ -1,0 +1,15 @@
+diff --git a/server/payment-service.ts b/server/payment-service.ts
+--- a/server/payment-service.ts
++++ b/server/payment-service.ts
+@@ -23,11 +23,7 @@ export class PaymentService {
+     return payment;
+   }
+ 
+   retryPayment(paymentId: string) {
+-    const priorRetry = shopState.retries[paymentId];
+-    if (priorRetry) {
+-      return priorRetry;
+-    }
+     const payment = shopState.payments[paymentId];
+     const entry = {
+       id: "led-retry-" + paymentId,

@@ -1,3 +1,4 @@
+
 # Logs
 logs
 *.log
@@ -147,3 +148,9 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+node_modules
+dist
+.DS_Store
+*.log
+(feat: complete project)

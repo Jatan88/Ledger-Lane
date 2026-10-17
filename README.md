@@ -1,0 +1,63 @@
+# Ledger Lane
+
+A small stationery shop used to demonstrate [ChangeGraph](https://github.com/Jatan88/ChangeGraph). The counter is a React page. The bookkeeping is an in-memory Express API. There is no database.
+
+Publish this folder as its own public GitHub repository before linking it in ChangeGraph. ChangeGraph ingests a whole repository and stops at 40 source files, so this app stays separate from the ChangeGraph repo.
+
+## Run
+
+```bash
+npm install
+npm test
+npm run dev
+```
+
+The shop is at http://localhost:5174. The API is at http://localhost:3040. Vite proxies `/api` to the API.
+
+`npm test` runs the server tests. `npm run typecheck` checks the TypeScript.
+
+## Shop demo
+
+1. Take an item to the counter.
+2. Enter card `0000` and place the order. The card is declined, no ledger line is written, and the stock stays reserved for that order.
+3. On the receipt, choose **Retry payment**. One retry line is posted and the order is marked paid.
+4. Choose **Retry again**. The same ledger line comes back. A second retry does not write another entry.
+5. Choose **Refund order**. The stock returns and a reversal line is posted.
+
+Any other four digits are captured on the first try.
+
+## ChangeGraph demo
+
+The server is written so ChangeGraph can follow it. Each function name appears once. Each call passes as many arguments as that function declares. Service classes use `@Injectable()` or `@Controller()`. The service methods do not call library helpers, so those calls are not left unresolved. Tests call `submitCheckout`, `capturePayment`, `recordLedgerEntry`, `notifyPayment`, and `sendNotification`. No test calls `retryPayment`.
+
+```mermaid
+flowchart TD
+  submitCheckout --> reserveStock
+  submitCheckout --> capturePayment
+  submitCheckout --> notifyPayment
+  capturePayment --> recordLedgerEntry
+  notifyPayment --> sendNotification
+  retryFailedPayment --> retryPayment
+  retryPayment --> recordLedgerEntry
+  retryPayment --> sendNotification
+  retryPayment --> auditPaymentRetry
+  refundOrder --> reverseLedgerEntry
+  refundOrder --> releaseStock
+```
+
+Synthetic payment incidents attach to `retryPayment`, `recordLedgerEntry`, `sendNotification`, and `notifyPayment`.
+
+1. In ChangeGraph, create a project and link the public repository URL for this folder.
+2. Select the default branch and ingest it.
+3. Seed the synthetic payment incidents.
+4. From this directory, apply the risky edit and commit it:
+
+```bash
+patch -p1 < walkthrough/drop-idempotency.patch
+```
+
+That removes the idempotency guard in `retryPayment`. The next retry writes another ledger line for the same payment.
+
+5. Push the commit, ingest it, and open the impact report.
+
+The report should show `retryPayment` as the changed function, `retryFailedPayment` as its caller, and `recordLedgerEntry`, `sendNotification`, and `auditPaymentRetry` downstream. Those functions sit on different annotated services. `retryPayment` has no direct test. The ledger and notification tests are recommended because they call the downstream functions. The verified synthetic retry incident is linked. Together those drivers land in the CRITICAL band: one changed function, one caller, three downstream functions, a service boundary, a missing direct test, the synthetic incident, and the parser limitation recorded on every ingest.

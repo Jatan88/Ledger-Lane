@@ -25,6 +25,10 @@ export class PaymentService {
   }
 
   retryPayment(paymentId: string) {
+    const priorRetry = shopState.retries[paymentId];
+    if (priorRetry) {
+      return priorRetry;
+    }
     const payment = shopState.payments[paymentId];
     const entry = {
       id: "led-retry-" + paymentId,

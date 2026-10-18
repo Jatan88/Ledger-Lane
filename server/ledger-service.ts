@@ -19,6 +19,9 @@ export class LedgerService {
       }
       index = index + 1;
     }
+    if (amountCents === 0) {
+      return entryId;
+    }
     const reversal = {
       id: "led-rev-" + entryId,
       paymentId: entryId,

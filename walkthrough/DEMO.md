@@ -57,3 +57,29 @@ On Activity, the run should show:
 Downstream points stop at 24, so four functions score the same as three. The total is 12 + 6 + 24 + 12 + 10 + 10 + 5 = 79, CRITICAL. One changed function, one caller, the downstream cap, the service boundary, the missing test, the verified synthetic incident, and the parser limitation recorded on every ingest. The number is a review priority.
 
 The developer agent opens a `changegraph/fix-*` pull request that puts the `if` / `return` back. It is not merged, and it is not pushed to `main`.
+
+## Stock scene
+
+Same shape, on `main`, for the shelf check. `reserveStock` on the current tip already sells past the stock count and still calls `warnOversell`. Put the check back, let ChangeGraph index that commit, then remove only the check:
+
+```bash
+./walkthrough/demo.sh prepare 01 --commit --push
+```
+
+Select `main` and wait for the sync. Then:
+
+```bash
+./walkthrough/demo.sh apply 01 --commit --push
+```
+
+The page will not order nine pens. The API will:
+
+```bash
+curl -s -X POST http://localhost:3040/api/checkout \
+  -H 'content-type: application/json' \
+  -d '{"sku":"pen","quantity":9,"cardLast4":"4242"}'
+```
+
+Pens start at 5. With the guard, the order is `out_of_stock` and the shelf stays at 5. After the demo commit, the order is paid and the shelf goes negative. `npm test` stays green.
+
+The review shows `reserveStock` modified. Callers include `submitCheckout` and `acceptCheckout`. `warnOversell` stays downstream, on another annotated service. No direct test, and the retry incident stays off this report. Expect HIGH, around 59: one function, two callers, one downstream function, the service boundary, the missing test, and the parser limitation. The pull request puts the stock `if` / `return` back and leaves the warning call for a person to judge.

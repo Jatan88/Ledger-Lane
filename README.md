@@ -45,19 +45,6 @@ flowchart TD
   refundOrder --> releaseStock
 ```
 
-Synthetic payment incidents attach to `retryPayment`, `recordLedgerEntry`, `sendNotification`, and `notifyPayment`.
+The seeded retry incident links to `retryPayment`. The notification example is stored and stays unlinked, because those functions are not in a payment file.
 
-1. In ChangeGraph, create a project and link the public repository URL for this folder.
-2. Select the default branch and ingest it.
-3. Seed the synthetic payment incidents.
-4. From this directory, apply the risky edit and commit the TypeScript files it changes. Committing only the patch file does not change a function, so the review does not open a pull request.
-
-```bash
-patch -p1 < walkthrough/oversell-stock.patch
-```
-
-That removes the stock guard inside `reserveStock` and adds `warnOversell` on a new `OversellWarningService`. Checkout then takes payment for an order even when the shelf does not have enough stock. `releaseStock` is outside the diff. No test calls `reserveStock` or `warnOversell`.
-
-5. Commit and push that edit on the selected branch. Include `server/inventory-service.ts` and `server/oversell-warning-service.ts`.
-
-ChangeGraph detects the push and reviews the graph. The report should show `reserveStock` as modified and `warnOversell` as added. `submitCheckout` calls `reserveStock`, and `acceptCheckout` calls `submitCheckout`. The new warning is downstream. Those functions sit on different annotated services. Neither changed function has a direct test. Those findings are actionable. The Developer Agent opens a `changegraph/fix-*` pull request that puts the stock guard back and adds a test calling the changed function. The pull request is for a person to review. It is not merged, and it is not pushed to the default branch.
+The demos run on `main`. The retry scene removes the retry guard. The stock scene removes the shelf check. The steps are in [walkthrough/DEMO.md](walkthrough/DEMO.md). The words for the retry scene are in [walkthrough/SCRIPT.md](walkthrough/SCRIPT.md).

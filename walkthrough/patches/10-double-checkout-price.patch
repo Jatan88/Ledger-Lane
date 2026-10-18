@@ -1,0 +1,12 @@
+diff --git a/server/checkout-service.ts b/server/checkout-service.ts
+--- a/server/checkout-service.ts
++++ b/server/checkout-service.ts
+@@ -15,7 +15,7 @@
+     while (index < shopState.products.length) {
+       const product = shopState.products[index];
+       if (product.sku === order.sku) {
+-        amountCents = product.priceCents * order.quantity;
++        amountCents = product.priceCents * order.quantity * 2;
+       }
+       index = index + 1;
+     }

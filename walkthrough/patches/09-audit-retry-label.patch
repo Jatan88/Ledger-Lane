@@ -1,0 +1,12 @@
+diff --git a/server/audit-service.ts b/server/audit-service.ts
+--- a/server/audit-service.ts
++++ b/server/audit-service.ts
+@@ -4,7 +4,7 @@
+ @Injectable()
+ export class AuditService {
+   auditPaymentRetry(paymentId: string) {
+-    shopState.audits[shopState.audits.length] = paymentId;
++    shopState.audits[shopState.audits.length] = "retry " + paymentId;
+     return paymentId;
+   }
+ }

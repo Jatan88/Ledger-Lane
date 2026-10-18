@@ -1,0 +1,24 @@
+diff --git a/server/payment-service.ts b/server/payment-service.ts
+--- a/server/payment-service.ts
++++ b/server/payment-service.ts
+@@ -12,14 +12,12 @@
+     payment.id = "pay-" + shopState.paymentSequence;
+     payment.status = payment.cardLast4 === "0000" ? "failed" : "captured";
+     shopState.payments[payment.id] = payment;
+-    if (payment.status === "captured") {
+-      ledgerService.recordLedgerEntry({
+-        id: "led-" + shopState.paymentSequence,
+-        paymentId: payment.id,
+-        kind: "capture",
+-        amountCents: payment.amountCents,
+-      });
+-    }
++    ledgerService.recordLedgerEntry({
++      id: "led-" + shopState.paymentSequence,
++      paymentId: payment.id,
++      kind: "capture",
++      amountCents: payment.amountCents,
++    });
+     return payment;
+   }
+ 

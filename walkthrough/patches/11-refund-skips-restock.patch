@@ -1,0 +1,17 @@
+diff --git a/server/refund-service.ts b/server/refund-service.ts
+--- a/server/refund-service.ts
++++ b/server/refund-service.ts
+@@ -1,5 +1,4 @@
+ import { Injectable } from "./decorators";
+-import { inventoryService } from "./inventory-service";
+ import { ledgerService } from "./ledger-service";
+ import { shopState } from "./store";
+ 
+@@ -8,7 +7,6 @@
+   refundOrder(orderId: string) {
+     const order = shopState.orders[orderId];
+     ledgerService.reverseLedgerEntry(order.paymentId);
+-    inventoryService.releaseStock(order.sku, order.quantity);
+     order.status = "refunded";
+     return order;
+   }

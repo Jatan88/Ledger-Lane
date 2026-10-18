@@ -1,0 +1,12 @@
+diff --git a/server/notification-service.ts b/server/notification-service.ts
+--- a/server/notification-service.ts
++++ b/server/notification-service.ts
+@@ -12,7 +12,7 @@
+   }
+ 
+   sendNotification(message: string) {
+-    shopState.notifications[shopState.notifications.length] = message;
++    shopState.notifications[shopState.notifications.length] = "sent";
+     return message;
+   }
+ }

@@ -1,0 +1,12 @@
+diff --git a/server/store.ts b/server/store.ts
+--- a/server/store.ts
++++ b/server/store.ts
+@@ -11,7 +11,7 @@
+     {
+       sku: "notebook",
+       name: "Field notebook",
+-      blurb: "Sixty-four plain pages, stitched, for lists that should stay put.",
++      blurb: "Sixty-four plain pages, stitched, for lists that should stay on the desk.",
+       priceCents: 1800,
+     },
+     {

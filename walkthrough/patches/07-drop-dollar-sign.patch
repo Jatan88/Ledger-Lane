@@ -1,0 +1,12 @@
+diff --git a/web/lane-client.ts b/web/lane-client.ts
+--- a/web/lane-client.ts
++++ b/web/lane-client.ts
+@@ -40,7 +40,7 @@
+   const dollars = Math.floor(cents / 100);
+   const remainder = cents % 100;
+   const padded = remainder < 10 ? "0" + remainder : "" + remainder;
+-  return "$" + dollars + "." + padded;
++  return dollars + "." + padded;
+ }
+ 
+ export async function loadCatalog(): Promise<LaneProduct[]> {

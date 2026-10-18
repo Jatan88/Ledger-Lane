@@ -1,0 +1,19 @@
+diff --git a/server/checkout-controller.ts b/server/checkout-controller.ts
+--- a/server/checkout-controller.ts
++++ b/server/checkout-controller.ts
+@@ -38,15 +38,6 @@
+ 
+   readReceipt(orderId: string): Receipt {
+     const order = shopState.orders[orderId];
+-    if (!order) {
+-      return {
+-        order: null,
+-        payment: null,
+-        ledger: [],
+-        notifications: [],
+-        audits: [],
+-      };
+-    }
+     const payment = shopState.payments[order.paymentId] ?? null;
+     const ledger = [];
+     let index = 0;

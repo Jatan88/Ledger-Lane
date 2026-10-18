@@ -1,0 +1,13 @@
+diff --git a/server/ledger-service.ts b/server/ledger-service.ts
+--- a/server/ledger-service.ts
++++ b/server/ledger-service.ts
+@@ -19,9 +19,6 @@
+       }
+       index = index + 1;
+     }
+-    if (amountCents === 0) {
+-      return entryId;
+-    }
+     const reversal = {
+       id: "led-rev-" + entryId,
+       paymentId: entryId,

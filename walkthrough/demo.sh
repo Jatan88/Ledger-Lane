@@ -12,11 +12,11 @@ PATCH_DIR="$ROOT/walkthrough/patches"
 usage() {
   cat <<'EOF'
 Usage:
-  ./walkthrough/demo.sh prepare [02|01|03] [--commit] [--push]
-  ./walkthrough/demo.sh apply [02|01|03] [--commit] [--push]
+  ./walkthrough/demo.sh prepare [02|01|03|04] [--commit] [--push]
+  ./walkthrough/demo.sh apply [02|01|03|04] [--commit] [--push]
 
 Runs only on main. Does not create another branch and does not force-push.
-02 is the retry guard. 01 is the stock guard. 03 is the zero-reversal guard. The default is 02.
+02 is the retry guard. 01 is the stock guard. 03 is the zero-reversal guard. 04 is the missing-receipt guard. The default is 02.
 
 prepare
   Put the guard back when main is already missing it. --commit and --push
@@ -31,7 +31,7 @@ EOF
 
 select_scene() {
   SCENE="02"
-  if [[ "${1:-}" == "01" || "${1:-}" == "02" || "${1:-}" == "03" ]]; then
+  if [[ "${1:-}" == "01" || "${1:-}" == "02" || "${1:-}" == "03" || "${1:-}" == "04" ]]; then
     SCENE="$1"
     shift
   fi
@@ -62,6 +62,15 @@ select_scene() {
       RESTORE_MESSAGE="Restore the zero-reversal guard before the demo commit."
       DROP_MESSAGE="Drop the zero-reversal guard so an unknown refund still posts a reversal."
       LABEL="zero-reversal guard"
+      ;;
+    04)
+      RESTORE="$PATCH_DIR/04-restore-missing-receipt.patch"
+      DROP="$PATCH_DIR/04-drop-missing-receipt.patch"
+      FILE="server/checkout-controller.ts"
+      MARKER="order: null"
+      RESTORE_MESSAGE="Restore the missing-receipt guard before the demo commit."
+      DROP_MESSAGE="Drop the missing-receipt guard so an unknown order falls through."
+      LABEL="missing-receipt guard"
       ;;
   esac
   ARGS=("$@")

@@ -97,3 +97,21 @@ Same shape, on `main`, for an empty reversal. `reverseLedgerEntry` still returns
 In the shop, card `0000`, then **Refund order**. The safe shop returns the stock and leaves the ledger empty. After the commit, the ledger gains a reversal of $0.00. `npm test` stays green.
 
 The review shows `reverseLedgerEntry` modified. Callers are `refundOrder` and `acceptRefund`, on other annotated services. Nothing is downstream. No direct test, and the retry incident stays off this report. Expect HIGH, around 51: one function, two callers, the service boundary, the missing test, and the parser limitation. The pull request puts the zero-amount `if` / `return` back.
+
+## Receipt scene
+
+Same shape, on `main`, for a missing order. `readReceipt` still returns an empty receipt when the order is unknown, so this guard is already on the tip. The demo commit is the removal:
+
+```bash
+./walkthrough/demo.sh apply 04 --commit --push
+```
+
+`./walkthrough/demo.sh prepare 04 --commit --push` puts the guard back after the scene.
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3040/api/orders/missing
+```
+
+With the guard, that is `404`. After the commit, the handler falls through on a missing order and the request fails. `npm test` stays green.
+
+The route callback is not a parsed function, so the trace has no caller and no callee. No direct test, and the retry incident stays off this report. Expect MEDIUM, around 27: one function, the missing test, and the parser limitation. The missing test is actionable, and the pull request puts the `if` / `return` back.

@@ -47,4 +47,4 @@ flowchart TD
 
 The seeded retry incident links to `retryPayment`. The notification example is stored and stays unlinked, because those functions are not in a payment file.
 
-The demos run on `main`. The retry scene removes the retry guard. The stock scene removes the shelf check. The refund scene removes the zero-reversal guard. The steps are in [walkthrough/DEMO.md](walkthrough/DEMO.md). The words for the retry scene are in [walkthrough/SCRIPT.md](walkthrough/SCRIPT.md).
+The demos run on `main`. The retry scene removes the retry guard. The stock scene removes the shelf check. The refund scene removes the zero-reversal guard. The receipt scene removes the missing-order guard. The steps are in [walkthrough/DEMO.md](walkthrough/DEMO.md). The words for the retry scene are in [walkthrough/SCRIPT.md](walkthrough/SCRIPT.md).

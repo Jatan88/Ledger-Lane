@@ -83,3 +83,17 @@ curl -s -X POST http://localhost:3040/api/checkout \
 Pens start at 5. With the guard, the order is `out_of_stock` and the shelf stays at 5. After the demo commit, the order is paid and the shelf goes negative. `npm test` stays green.
 
 The review shows `reserveStock` modified. Callers include `submitCheckout` and `acceptCheckout`. `warnOversell` stays downstream, on another annotated service. No direct test, and the retry incident stays off this report. Expect HIGH, around 59: one function, two callers, one downstream function, the service boundary, the missing test, and the parser limitation. The pull request puts the stock `if` / `return` back and leaves the warning call for a person to judge.
+
+## Refund scene
+
+Same shape, on `main`, for an empty reversal. `reverseLedgerEntry` still returns early when the amount is zero, so this guard is already on the tip. The demo commit is the removal:
+
+```bash
+./walkthrough/demo.sh apply 03 --commit --push
+```
+
+`./walkthrough/demo.sh prepare 03 --commit --push` puts the guard back after the scene.
+
+In the shop, card `0000`, then **Refund order**. The safe shop returns the stock and leaves the ledger empty. After the commit, the ledger gains a reversal of $0.00. `npm test` stays green.
+
+The review shows `reverseLedgerEntry` modified. Callers are `refundOrder` and `acceptRefund`, on other annotated services. Nothing is downstream. No direct test, and the retry incident stays off this report. Expect HIGH, around 51: one function, two callers, the service boundary, the missing test, and the parser limitation. The pull request puts the zero-amount `if` / `return` back.

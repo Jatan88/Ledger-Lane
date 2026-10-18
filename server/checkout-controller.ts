@@ -38,15 +38,6 @@ export class CheckoutController {
 
   readReceipt(orderId: string): Receipt {
     const order = shopState.orders[orderId];
-    if (!order) {
-      return {
-        order: null,
-        payment: null,
-        ledger: [],
-        notifications: [],
-        audits: [],
-      };
-    }
     const payment = shopState.payments[order.paymentId] ?? null;
     const ledger = [];
     let index = 0;
